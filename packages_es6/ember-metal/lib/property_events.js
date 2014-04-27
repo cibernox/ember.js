@@ -23,9 +23,10 @@ var beforeObserverSet = new ObserverSet(),
   @for Ember
   @param {Object} obj The object with the property that will change
   @param {String} keyName The property key (or path) that will change.
+  @param {String} (optionl) depKey The property key (or path) that triggered the change.
   @return {void}
 */
-function propertyWillChange(obj, keyName) {
+function propertyWillChange(obj, keyName, depKey) {
   var m = obj[META_KEY],
       watching = (m && m.watching[keyName] > 0) || keyName === 'length',
       proto = m && m.proto,
@@ -33,7 +34,7 @@ function propertyWillChange(obj, keyName) {
 
   if (!watching) { return; }
   if (proto === obj) { return; }
-  if (desc && desc.willChange) { desc.willChange(obj, keyName); }
+  if (desc && desc.willChange) { desc.willChange(obj, keyName, depKey); }
   dependentKeysWillChange(obj, keyName, m);
   chainsWillChange(obj, keyName, m);
   notifyBeforeObservers(obj, keyName);
@@ -52,9 +53,10 @@ function propertyWillChange(obj, keyName) {
   @for Ember
   @param {Object} obj The object with the property that will change
   @param {String} keyName The property key (or path) that will change.
+  @param {String} (optional) depKey The property key (or path) that triggered the change.
   @return {void}
 */
-function propertyDidChange(obj, keyName) {
+function propertyDidChange(obj, keyName, depKey) {
   var m = obj[META_KEY],
       watching = (m && m.watching[keyName] > 0) || keyName === 'length',
       proto = m && m.proto,
@@ -63,7 +65,7 @@ function propertyDidChange(obj, keyName) {
   if (proto === obj) { return; }
 
   // shouldn't this mean that we're watching this key?
-  if (desc && desc.didChange) { desc.didChange(obj, keyName); }
+  if (desc && desc.didChange) { desc.didChange(obj, keyName, depKey); }
   if (!watching && keyName !== 'length') { return; }
 
   dependentKeysDidChange(obj, keyName, m);
@@ -105,7 +107,7 @@ function iterDeps(method, obj, depKey, seen, meta) {
     for(var key in deps) {
       var desc = meta.descs[key];
       if (desc && desc._suspended === obj) continue;
-      method(obj, key);
+      method(obj, key, depKey);
     }
   }
 }
