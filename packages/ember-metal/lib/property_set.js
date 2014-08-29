@@ -75,7 +75,7 @@ var set = function set(obj, keyName, value, tolerant) {
       }
       // only trigger a change if the value has changed
       if (value !== currentValue) {
-        propertyWillChange(obj, keyName);
+        propertyWillChange(obj, keyName, undefined, value);
         if (MANDATORY_SETTER) {
           if ((currentValue === undefined && !(keyName in obj)) || !obj.propertyIsEnumerable(keyName)) {
             defineProperty(obj, keyName, null, value); // setup mandatory setter
@@ -85,7 +85,7 @@ var set = function set(obj, keyName, value, tolerant) {
         } else {
           obj[keyName] = value;
         }
-        propertyDidChange(obj, keyName);
+        propertyDidChange(obj, keyName, undefined, currentValue);
       }
     } else {
       obj[keyName] = value;
