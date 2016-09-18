@@ -136,6 +136,22 @@ moduleFor('Helpers test: {{textarea}}', class extends TextAreaRenderingTest {
     this.assert.strictEqual(this.firstChild.value, '');
   }
 
+  ['@test GH#14001 Should correctly handle an empty string bound placeholder']() {
+    this.render('<input type="text" placeholder={{message}}>', { message: '' });
+
+    this.assert.strictEqual(this.firstChild.placeholder, '');
+
+    this.assertStableRerender();
+
+    this.runTask(() => set(this.context, 'message', 'hello'));
+
+    this.assert.strictEqual(this.firstChild.placeholder, 'hello');
+
+    this.runTask(() => set(this.context, 'message', ''));
+
+    this.assert.strictEqual(this.firstChild.placeholder, '');
+  }
+
   ['@test should update the value for `cut` / `input` / `change` events']() {
     this.render('{{textarea value=model.val}}', {
       model: { val: 'A beautiful day in Seattle' }
